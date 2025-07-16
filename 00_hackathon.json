@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.36.177.2456",
-      "templateHash": "742172013831035077"
+      "templateHash": "13956664462267611824"
     }
   },
   "parameters": {
@@ -13,9 +13,9 @@
       "type": "string",
       "defaultValue": "00"
     },
-    "userGroupID": {
-      "type": "string",
-      "defaultValue": "GROUP_ID"
+    "userIds": {
+      "type": "array",
+      "defaultValue": []
     },
     "resourceGroupName": {
       "type": "string",
@@ -361,8 +361,8 @@
         },
         "mode": "Incremental",
         "parameters": {
-          "userGroupID": {
-            "value": "[parameters('userGroupID')]"
+          "userIds": {
+            "value": "[parameters('userIds')]"
           },
           "aiSearchPrincipalId": {
             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'aiSearchModule'), '2022-09-01').outputs.aiSearchPrincipalId.value]"
@@ -375,12 +375,12 @@
             "_generator": {
               "name": "bicep",
               "version": "0.36.177.2456",
-              "templateHash": "8894986072403014663"
+              "templateHash": "13374804469229652678"
             }
           },
           "parameters": {
-            "userGroupID": {
-              "type": "string"
+            "userIds": {
+              "type": "array"
             },
             "aiSearchPrincipalId": {
               "type": "string"
@@ -417,48 +417,68 @@
               }
             },
             {
+              "copy": {
+                "name": "userContributorRole",
+                "count": "[length(parameters('userIds'))]"
+              },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "name": "[guid(resourceGroup().id, parameters('userGroupID'), 'Contributor')]",
+              "name": "[guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'Contributor')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitions').userGroupContributor)]",
-                "principalId": "[parameters('userGroupID')]"
+                "principalId": "[parameters('userIds')[copyIndex()]]"
               }
             },
             {
+              "copy": {
+                "name": "aiSearchServiceContributorRole",
+                "count": "[length(parameters('userIds'))]"
+              },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "name": "[guid(resourceGroup().id, parameters('userGroupID'), 'SearchServiceContributor')]",
+              "name": "[guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'SearchServiceContributor')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitions').searchServiceContributor)]",
-                "principalId": "[parameters('userGroupID')]"
+                "principalId": "[parameters('userIds')[copyIndex()]]"
               }
             },
             {
+              "copy": {
+                "name": "aiSearchIndexDataContributorRole",
+                "count": "[length(parameters('userIds'))]"
+              },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "name": "[guid(resourceGroup().id, parameters('userGroupID'), 'SearchIndexDataContributor')]",
+              "name": "[guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'SearchIndexDataContributor')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitions').searchIndexDataContributor)]",
-                "principalId": "[parameters('userGroupID')]"
+                "principalId": "[parameters('userIds')[copyIndex()]]"
               }
             },
             {
+              "copy": {
+                "name": "aiSearchIndexDataReaderRole",
+                "count": "[length(parameters('userIds'))]"
+              },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "name": "[guid(resourceGroup().id, parameters('userGroupID'), 'SearchIndexDataReader')]",
+              "name": "[guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'SearchIndexDataReader')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitions').searchIndexDataReader)]",
-                "principalId": "[parameters('userGroupID')]"
+                "principalId": "[parameters('userIds')[copyIndex()]]"
               }
             },
             {
+              "copy": {
+                "name": "storageBlobDataReaderRole",
+                "count": "[length(parameters('userIds'))]"
+              },
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2022-04-01",
-              "name": "[guid(resourceGroup().id, parameters('userGroupID'), 'StorageBlobDataReader')]",
+              "name": "[guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'StorageBlobDataReader')]",
               "properties": {
                 "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitions').storageBlobDataReader)]",
-                "principalId": "[parameters('userGroupID')]"
+                "principalId": "[parameters('userIds')[copyIndex()]]"
               }
             }
           ],
@@ -471,25 +491,40 @@
               "type": "string",
               "value": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('aiSearchPrincipalId'), variables('roleDefinitions').cognitiveServicesOpenAIUser))]"
             },
-            "userGroupContributorRoleId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userGroupID'), 'Contributor'))]"
+            "userContributorRoleIds": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('userIds'))]",
+                "input": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'Contributor'))]"
+              }
             },
-            "aiSearchServiceContributorRoleId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userGroupID'), 'SearchServiceContributor'))]"
+            "aiSearchServiceContributorRoleIds": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('userIds'))]",
+                "input": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'SearchServiceContributor'))]"
+              }
             },
-            "aiSearchIndexDataContributorRoleId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userGroupID'), 'SearchIndexDataContributor'))]"
+            "aiSearchIndexDataContributorRoleIds": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('userIds'))]",
+                "input": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'SearchIndexDataContributor'))]"
+              }
             },
-            "aiSearchIndexDataReaderRoleId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userGroupID'), 'SearchIndexDataReader'))]"
+            "aiSearchIndexDataReaderRoleIds": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('userIds'))]",
+                "input": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'SearchIndexDataReader'))]"
+              }
             },
-            "storageBlobDataReaderRoleId": {
-              "type": "string",
-              "value": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userGroupID'), 'StorageBlobDataReader'))]"
+            "storageBlobDataReaderRoleIds": {
+              "type": "array",
+              "copy": {
+                "count": "[length(parameters('userIds'))]",
+                "input": "[resourceId('Microsoft.Authorization/roleAssignments', guid(resourceGroup().id, parameters('userIds')[copyIndex()], 'StorageBlobDataReader'))]"
+              }
             }
           }
         }
