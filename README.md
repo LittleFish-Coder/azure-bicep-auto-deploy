@@ -73,9 +73,7 @@ az deployment sub create --location eastUS --template-file 00_hackathon.bicep --
 ```
 
 #### Deployment Process
-The deployment will take about 10-15 minutes to complete, depending on the resources being created
-You can check the deployment status in the Azure Portal under `Resource groups -> deployments`.
-If no errors occur, then the process is complete and you can start using the resources.
+The deployment will take about 10-15 minutes to complete, depending on the resources being created. You can check the deployment status in the Azure Portal under `Resource groups -> deployments`. If no errors occur, then the process is complete and you can start using the resources.
 
 ## Reference
 
