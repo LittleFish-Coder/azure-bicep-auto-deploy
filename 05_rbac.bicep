@@ -1,6 +1,6 @@
 targetScope = 'resourceGroup'
 
-param userGroupID string
+param userIds array
 param aiSearchPrincipalId string
 
 // check https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles
@@ -22,14 +22,15 @@ var roleDefinitions = {
   
 }
 
-// Assign roles to the user group
-// resource userGroupOwnerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-//   name: guid(resourceGroup().id, userGroupID, 'Owner')
+// Note: Owner role assignment is commented out as it may be too broad for regular users
+// Uncomment and modify if owner permissions are specifically needed:
+// resource userOwnerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
+//   name: guid(resourceGroup().id, userId, 'Owner')
 //   properties: {
 //     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.userGroupOwner)
-//     principalId: userGroupID
+//     principalId: userId
 //   }
-// }
+// }]
 
 
 // Assign "Storage Blob Data Reader" role to AI Search service
@@ -51,53 +52,54 @@ resource cognitiveServicesOpenAIUserAISearchRole 'Microsoft.Authorization/roleAs
 }
 
 
-resource userGroupContributorRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, userGroupID, 'Contributor')
+// Assign roles to individual users
+resource userContributorRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
+  name: guid(resourceGroup().id, userId, 'Contributor')
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.userGroupContributor)
-    principalId: userGroupID
+    principalId: userId
   }
-}
+}]
 
-// Assign AI Search roles to the user group
-resource aiSearchServiceContributorRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, userGroupID, 'SearchServiceContributor')
+// Assign AI Search roles to individual users
+resource aiSearchServiceContributorRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
+  name: guid(resourceGroup().id, userId, 'SearchServiceContributor')
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.searchServiceContributor)
-    principalId: userGroupID
+    principalId: userId
   }
-}
+}]
 
-resource aiSearchIndexDataContributorRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, userGroupID, 'SearchIndexDataContributor')
+resource aiSearchIndexDataContributorRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
+  name: guid(resourceGroup().id, userId, 'SearchIndexDataContributor')
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.searchIndexDataContributor)
-    principalId: userGroupID
+    principalId: userId
   }
-}
+}]
 
-resource aiSearchIndexDataReaderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, userGroupID, 'SearchIndexDataReader')
+resource aiSearchIndexDataReaderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
+  name: guid(resourceGroup().id, userId, 'SearchIndexDataReader')
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.searchIndexDataReader)
-    principalId: userGroupID
+    principalId: userId
   }
-}
+}]
 
-// Assign Storage roles to the user group
-resource storageBlobDataReaderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, userGroupID, 'StorageBlobDataReader')
+// Assign Storage roles to individual users
+resource storageBlobDataReaderRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
+  name: guid(resourceGroup().id, userId, 'StorageBlobDataReader')
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.storageBlobDataReader)
-    principalId: userGroupID
+    principalId: userId
   }
-}
+}]
 // Output the role assignment IDs
 output storageBlobDataReaderAISearchRoleId string = storageBlobDataReaderAISearchRole.id
 output cognitiveServicesOpenAIUserAISearchRoleId string = cognitiveServicesOpenAIUserAISearchRole.id
-// output userGroupOwnerRoleId string = userGroupOwnerRole.id
-output userGroupContributorRoleId string = userGroupContributorRole.id
-output aiSearchServiceContributorRoleId string = aiSearchServiceContributorRole.id
-output aiSearchIndexDataContributorRoleId string = aiSearchIndexDataContributorRole.id
-output aiSearchIndexDataReaderRoleId string = aiSearchIndexDataReaderRole.id
-output storageBlobDataReaderRoleId string = storageBlobDataReaderRole.id
+// Output arrays of role assignment IDs for user roles
+output userContributorRoleIds array = [for (userId, index) in userIds: userContributorRole[index].id]
+output aiSearchServiceContributorRoleIds array = [for (userId, index) in userIds: aiSearchServiceContributorRole[index].id]
+output aiSearchIndexDataContributorRoleIds array = [for (userId, index) in userIds: aiSearchIndexDataContributorRole[index].id]
+output aiSearchIndexDataReaderRoleIds array = [for (userId, index) in userIds: aiSearchIndexDataReaderRole[index].id]
+output storageBlobDataReaderRoleIds array = [for (userId, index) in userIds: storageBlobDataReaderRole[index].id]

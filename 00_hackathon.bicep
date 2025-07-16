@@ -1,7 +1,7 @@
 targetScope = 'subscription'
 
 param team string = '00'
-param userGroupID string = 'GROUP_ID' // Replace with your user group ID
+param userIds array = [] // Array of user IDs to assign roles to
 param resourceGroupName string = 'rg-hackathon-team${team}'
 param aiFoundryName string = 'ai-foundry-hackathon-team${team}'
 param aiProjectName string = 'ai-project-hackathon-team${team}'
@@ -59,12 +59,12 @@ module openAIModule '04_openAI.bicep' = {
   }
 }
 
-// 05 role assignment for the user group
+// 05 role assignment for individual users
 module rbacModule '05_rbac.bicep' = {
   name: 'rbacModule'
   scope: resourceGroup
   params: {
-    userGroupID: userGroupID
+    userIds: userIds
     aiSearchPrincipalId: aiSearchModule.outputs.aiSearchPrincipalId
   }
   dependsOn: [
