@@ -22,14 +22,15 @@ var roleDefinitions = {
   
 }
 
-// Assign roles to the user group
-// resource userGroupOwnerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-//   name: guid(resourceGroup().id, userGroupID, 'Owner')
+// Note: Owner role assignment is commented out as it may be too broad for regular users
+// Uncomment and modify if owner permissions are specifically needed:
+// resource userOwnerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
+//   name: guid(resourceGroup().id, userId, 'Owner')
 //   properties: {
 //     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.userGroupOwner)
-//     principalId: userGroupID
+//     principalId: userId
 //   }
-// }
+// }]
 
 
 // Assign "Storage Blob Data Reader" role to AI Search service
