@@ -1,15 +1,17 @@
 targetScope = 'subscription'
 
 param team string = '00'
-param userIds array = [] // Array of user IDs to assign roles to
+param userIds array = [
+  'user-id-1'
+  'user-id-2'
+] // Array of user IDs to assign roles to
+param location string = 'eastus'
 param resourceGroupName string = 'rg-hackathon-team${team}'
 param aiFoundryName string = 'ai-foundry-hackathon-team${team}'
 param aiProjectName string = 'ai-project-hackathon-team${team}'
 param aiSearchName string = 'ai-search-hackathon-team${team}'
 param openAIName string = 'openai-hackathon-team${team}'
 param storageAccountName string = 'storagehackathonteam${team}'
-param location string = 'eastus'
-
 
 // 00_Create a resource group
 resource resourceGroup 'Microsoft.Resources/resourceGroups@2025-04-01' = {

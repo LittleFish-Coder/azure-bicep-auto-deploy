@@ -1,6 +1,6 @@
 # Hackathon Bicep Templates for Azure Services
 
-> you have to install [Azure CLI](https://learn.microsoft.com/zh-tw/cli/azure/install-azure-cli?view=azure-cli-latest) and [Bicep CLI](https://learn.microsoft.com/zh-tw/azure/azure-resource-manager/bicep/install) first
+> You have to install [Azure CLI](https://learn.microsoft.com/zh-tw/cli/azure/install-azure-cli?view=azure-cli-latest) and [Bicep CLI](https://learn.microsoft.com/zh-tw/azure/azure-resource-manager/bicep/install) first
 
 Before you start, make sure you have the Azure CLI and Bicep CLI installed on your machine.
 ```bash
@@ -19,14 +19,9 @@ az account show --output table # check your current subscription
 ## Quick Setup
 To quick deploy the Azure Bicep templates for the hackathon
 
-0. (optional) Customize the parameters
 1. Edit `users.txt` to include the email addresses of participants.
 2. Run `getUserIds.sh` (or `getUserIds.ps1`) to get user IDs from email addresses.
 3. Deploy the Bicep template using the Azure CLI with the user IDs.
-
-### 0. (optional) Customize the parameters
-- In `00_hackathon.bicep`, you can customize the resources you want to deploy (line 3-11).
-
 
 ### 1. Edit `users.txt`
 Put your user email addresses in `users.txt`, one per line. 
@@ -38,52 +33,49 @@ user2@microsoft.com
 
 ### 2. Run `getUserIds.sh` to get user IDs
 Run the script to get user IDs from email addresses:
+
 ```bash
 bash getUserIds.sh # Linux / Mac
 .\getUserIds.ps1 # Windows PowerShell
 ```
-
-This will output the user IDs in a format suitable for the Bicep template parameters.
+You will get a file named `user_ids.txt` with user IDs, one per line.
+```bash
+user-id-1
+user-id-2
+...
+```
 
 ### 3. Deploy the Bicep Template
 You can deploy using one of these methods:
 
-**Method A: With inline parameters**
-```bash
-az deployment sub create \
-  --location eastUS \
-  --template-file 00_hackathon.bicep \
-  --parameters userIds='["user-id-1","user-id-2","user-id-3"]'
+#### 3.1 **Method A: VS Code extension manual deployment (recommended)**
+> Must first download the [Bicep extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-bicep) for Visual Studio Code.
+1. Modify `team` and `userIds` in `00_hackathon.bicep` file
+2. Right-click on the `00_hackathon.bicep` file in VS Code and select "Deploy Bicep file..."
+```
+# You might go through a few prompts to deploy the Bicep template.
+1. Name your deployment (e.g., "Hackathon Deployment")
+2. Select the subscription
+3. Select the location (e.g., "East US")
+4. Select a parameter file (choose None)
 ```
 
-**Method B: With parameters file**
-1. Copy the user IDs from step 2 into `parameters.json` file
-2. Deploy with parameters file:
+#### 3.2 **Method B: Deploy via Azure CLI after Editing Bicep File**
+1. Modify `team` and `userIds` in `00_hackathon.bicep` file
+2. Deploy the Bicep template using the Azure CLI:
+  ```bash
+  az deployment sub create --location eastUS --template-file 00_hackathon.bicep
+  ```
+
+#### 3.3 **Method C: With inline parameters**
 ```bash
-az deployment sub create \
-  --location eastUS \
-  --template-file 00_hackathon.bicep \
-  --parameters @parameters.json
+az deployment sub create --location eastUS --template-file 00_hackathon.bicep --parameters team='team_id' userIds='["user-id-1","user-id-2"]'
 ```
-(This would take 10-15 minutes)
-You can check the deployment status in the Azure Portal under "Resource groups -> deployments".
+
+#### Deployment Process
+The deployment will take about 10-15 minutes to complete, depending on the resources being created
+You can check the deployment status in the Azure Portal under `Resource groups -> deployments`.
 If no errors occur, then the process is complete and you can start using the resources.
-
-## Legacy Group-based Deployment (Alternative)
-If you prefer to use the previous group-based approach, you can still use the `createGroup.sh` script:
-
-1. Run `createGroup.sh` to create a user group and get the GROUP_ID
-2. Create a custom parameters file with the group ID:
-```json
-{
-  "userIds": {
-    "value": ["YOUR_GROUP_ID_HERE"]
-  }
-}
-```
-3. Deploy using the parameters file
-
-Note: The new individual user approach is recommended as it provides more granular control over permissions.
 
 ## Reference
 

@@ -1,9 +1,10 @@
 #!/bin/bash
 
 # Script to read users.txt and get user IDs by email addresses
-# Output format: comma-separated list of user IDs for use in Bicep templates
+# Output format: user IDs written one per line for use in Bicep templates
 
 echo "Reading users from users.txt and looking up user IDs..."
+echo ""
 
 USER_IDS=()
 
@@ -22,6 +23,7 @@ while IFS= read -r line; do
         else
             echo "Warning: User not found: $email"
         fi
+        echo ""
     fi
     
 done < users.txt
@@ -32,19 +34,9 @@ if [ ${#USER_IDS[@]} -eq 0 ]; then
     exit 1
 fi
 
-echo ""
 echo "Found ${#USER_IDS[@]} user(s)"
 echo "User IDs (comma-separated): $(IFS=','; echo "${USER_IDS[*]}")"
 
-# Output as JSON array for parameter file
-echo ""
-echo "For parameters file (userIds parameter):"
-printf '['
-for i in "${!USER_IDS[@]}"; do
-    printf '"%s"' "${USER_IDS[$i]}"
-    if [ $i -lt $((${#USER_IDS[@]} - 1)) ]; then
-        printf ','
-    fi
-done
-printf ']'
-echo ""
+# Write user IDs to user_ids.txt (one per line)
+printf '%s\n' "${USER_IDS[@]}" > user_ids.txt
+echo "User IDs written to user_ids.txt"

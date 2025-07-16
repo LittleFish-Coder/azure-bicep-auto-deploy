@@ -22,17 +22,6 @@ var roleDefinitions = {
   
 }
 
-// Note: Owner role assignment is commented out as it may be too broad for regular users
-// Uncomment and modify if owner permissions are specifically needed:
-// resource userOwnerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
-//   name: guid(resourceGroup().id, userId, 'Owner')
-//   properties: {
-//     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.userGroupOwner)
-//     principalId: userId
-//   }
-// }]
-
-
 // Assign "Storage Blob Data Reader" role to AI Search service
 resource storageBlobDataReaderAISearchRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(resourceGroup().id, aiSearchPrincipalId, 'StorageBlobDataReader')
@@ -51,6 +40,16 @@ resource cognitiveServicesOpenAIUserAISearchRole 'Microsoft.Authorization/roleAs
   }
 }
 
+
+// Note: Owner role assignment is commented out as it may be too broad for regular users
+// Uncomment and modify if owner permissions are specifically needed:
+// resource userOwnerRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
+//   name: guid(resourceGroup().id, userId, 'Owner')
+//   properties: {
+//     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', roleDefinitions.userGroupOwner)
+//     principalId: userId
+//   }
+// }]
 
 // Assign roles to individual users
 resource userContributorRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (userId, index) in userIds: {
